@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Transactional
@@ -40,5 +41,26 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             //LOGGER.info("returning found user by username:"+username);
             return userPrincipal;
         }
+    }
+
+
+    @Override
+    public User register(String firstName, String username, String email) {
+        return null;
+    }
+
+    @Override
+    public List<User> getUsers() {
+        return null;
+    }
+
+    @Override
+    public User findByUsername(String username) {
+        return null;
+    }
+
+    @Override
+    public User findUserByEmail(String email) {
+        return null;
     }
 }
