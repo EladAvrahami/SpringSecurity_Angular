@@ -26,7 +26,7 @@ public class User implements Serializable {//https://projectlombok.org/# about @
     private Date lastLoginDate;//the last time user login
     private Date lastLoginDateDisplay;//used to show when last login
     private Date joinDate;
-    private String[] roles;//ROLE_USER{read ,edit},ROLE_ADMIN{delete,update,create}
+    private String role;//ROLE_USER{read ,edit},ROLE_ADMIN{delete,update,create}
     private String[] authorities;
     private Boolean isActive;
     private Boolean isNotLocked;
