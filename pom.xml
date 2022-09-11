@@ -95,6 +95,7 @@
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
 		<!-- USE it in "JWTProvider" class -->
+		<!-- USE it also in "userServiceImpl" class - stringUtils -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
