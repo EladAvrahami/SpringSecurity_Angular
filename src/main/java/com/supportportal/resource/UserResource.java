@@ -48,7 +48,7 @@ public class UserResource extends ExceptionHandling {
         this.jwtProvider = jwtProvider;
     }
 
-    @PostMapping("/login") //http://localhost:8081/user/register
+    @PostMapping("/login")
     public ResponseEntity<User> login1(@RequestBody User user) {
        authenticate(user.getUserName(),user.getPassword());
        User loginUser =userService.findUserByUsername(user.getUserName());
