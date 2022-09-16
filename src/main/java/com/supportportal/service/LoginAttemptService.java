@@ -42,6 +42,11 @@ public class LoginAttemptService {
     }
 
 
+    /**
+     * wane Authentication Failure
+     * @param username
+     * @throws ExecutionException
+     */
     public void addUserToLoginAttemptCache(String username) throws ExecutionException{
         int attempts=0;
             attempts=loginAttemptCache.get(username) + ATTEMPT_INCREMENT  ;
