@@ -7,6 +7,7 @@ import com.supportportal.exception.domain.EmailExistsException;
 import com.supportportal.exception.domain.UserNameExistException;
 import com.supportportal.exception.domain.UserNotFoundException;
 import com.supportportal.repo.UserRepo;
+import com.supportportal.service.LoginAttemptService;
 import com.supportportal.service.UserService;
 //import org.slf4j.Logger;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -24,6 +25,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
 import static com.supportportal.constant.UserImplConstant.DEFAULT_USER_IMAGE_PATH;
@@ -41,6 +43,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private UserRepo userRepo;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+    @Autowired
+    private LoginAttemptService loginAttemptService;
 
 
     @Override
@@ -50,12 +54,29 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             //LOGGER.error("user not found by username"+username);
             throw new UsernameNotFoundException(username+"not found");
         }else {
+            validateLoginAttempt(user);
             user.setLastLoginDateDisplay(user.getLastLoginDate());//set login date
             user.setLastLoginDate(new Date());
-            userRepo.save(user);
+            userRepo.save(user);//after all checks save user to db
             UserPrincipal userPrincipal =new UserPrincipal(user);
             //LOGGER.info("returning found user by username:"+username);
             return userPrincipal;
+        }
+    }
+
+    /**
+     * check and determine if username is lock or not according to num of trying to log in with incorrect pass
+     * @param user
+     */
+    private void validateLoginAttempt(User user) {
+        if (user.isNotLocked()){
+          if (loginAttemptService.hasExceededMaxAttempts(user.getUserName())) {
+              user.setIsNotLocked(false);
+          }else {
+              user.setIsNotLocked(true);
+          }
+        }else {
+            loginAttemptService.evictUserFromLoginAttemptCache(user.getUserName());//remove user from cache
         }
     }
 
