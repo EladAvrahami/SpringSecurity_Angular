@@ -1,7 +1,6 @@
-package com.supportportal.resource;
+package com.supportportal.Controllers;
 
 import com.supportportal.Utility.JWTProvider;
-import com.supportportal.domain.HttpResponse;
 import com.supportportal.domain.User;
 import com.supportportal.domain.UserPrincipal;
 import com.supportportal.exception.ExceptionHandling;
@@ -18,7 +17,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.web.bind.annotation.*;
 
 import static com.supportportal.constant.SecurityConstant.JWT_TOKEN_HEADER;
-import static org.springframework.http.HttpStatus.OK;
 
 @RestController
 @RequestMapping(path = {"/","/user"})//to be more specific use path instead of value
@@ -48,6 +46,8 @@ public class UserResource extends ExceptionHandling {
         this.jwtProvider = jwtProvider;
     }
 
+
+  //if user has been locked go to DB and change filed "is_not_lock" value to 1 (before press apply remove the '1' and just write 1 in sql query)
     @PostMapping("/login")
     public ResponseEntity<User> login1(@RequestBody User user) {
        authenticate(user.getUserName(),user.getPassword());
@@ -63,6 +63,8 @@ public class UserResource extends ExceptionHandling {
     "userName":"tal",
     "password":"VKOeXHhgyo"
 }'   */
+
+
 
 
 
