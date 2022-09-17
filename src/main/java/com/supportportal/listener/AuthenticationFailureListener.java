@@ -18,7 +18,7 @@ public class AuthenticationFailureListener {
 
     //UserResource -> "authenticate" mast have a string as principle
     @EventListener //Im listening on that event so whenever it occurs i will grab the principal and add username to cache
-    public void  onAuthenticationFailure(AuthenticationFailureBadCredentialsEvent event) throws ExecutionException {
+    public void  onAuthenticationFailure(AuthenticationFailureBadCredentialsEvent event){
         Object principal = event.getAuthentication().getPrincipal();
         if (principal instanceof String){
             String username=(String) event.getAuthentication().getPrincipal();

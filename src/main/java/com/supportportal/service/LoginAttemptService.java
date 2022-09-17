@@ -47,10 +47,14 @@ public class LoginAttemptService {
      * @param username
      * @throws ExecutionException
      */
-    public void addUserToLoginAttemptCache(String username) throws ExecutionException{
+    public void addUserToLoginAttemptCache(String username) {
         int attempts=0;
+        try {
             attempts=loginAttemptCache.get(username) + ATTEMPT_INCREMENT  ;
-            loginAttemptCache.put(username,attempts);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        loginAttemptCache.put(username,attempts);
     }
 
     /**
@@ -59,8 +63,13 @@ public class LoginAttemptService {
      * @return boolean answer if the key(username) has value bigger or equal to MAXIMUM_NUMBER_OF_ATTEMPTS
      * @throws ExecutionException
      */
-    public boolean hasExceededMaxAttempts(String username) throws ExecutionException {
-        return loginAttemptCache.get(username) >= MAXIMUM_NUMBER_OF_ATTEMPTS;
+    public boolean hasExceededMaxAttempts(String username) {
+        try {
+            return loginAttemptCache.get(username) >= MAXIMUM_NUMBER_OF_ATTEMPTS;
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }
