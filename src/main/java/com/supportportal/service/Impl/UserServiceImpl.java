@@ -7,9 +7,11 @@ import com.supportportal.exception.domain.EmailExistsException;
 import com.supportportal.exception.domain.UserNameExistException;
 import com.supportportal.exception.domain.UserNotFoundException;
 import com.supportportal.repo.UserRepo;
+import com.supportportal.service.EmailService;
 import com.supportportal.service.LoginAttemptService;
 import com.supportportal.service.UserService;
 //import org.slf4j.Logger;
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +38,7 @@ import static com.supportportal.constant.UserImplConstant.DEFAULT_USER_IMAGE_PAT
 @Service
 @Transactional
 @Qualifier("UserDetailsService")
+
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     //private Logger LOGGER= LoggerFactory.getLogger(getClass());//getClass or UserServiceImpl.class is the same
@@ -45,6 +49,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private BCryptPasswordEncoder passwordEncoder;
     @Autowired
     private LoginAttemptService loginAttemptService;
+    @Autowired
+    private EmailService emailService;
 
 
     @Override
@@ -82,7 +88,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 
     @Override
-    public User register(String firstName, String lastName, String username, String email) throws UserNotFoundException, UserNameExistException, EmailExistsException {
+    public User register(String firstName, String lastName, String username, String email) throws UserNotFoundException, UserNameExistException, EmailExistsException, MessagingException {
         validateNewUsernameAndEmail(StringUtils.EMPTY,username,email);//StringUtils.EMPTY -give me the option to not provide user name because its first time user come to my app
         User user = new User();
         user.setUserId(generateUserId());
@@ -101,6 +107,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setProfileImageUrl(getTemporaryProfileImageUrl(username));
         userRepo.save(user);
         System.out.println("new user password: "+password);
+        emailService.sendNewPasswordEmail(firstName,password,email);
         return user;
     }
 
