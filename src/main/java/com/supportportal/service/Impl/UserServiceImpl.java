@@ -37,7 +37,7 @@ import static com.supportportal.constant.UserImplConstant.DEFAULT_USER_IMAGE_PAT
 
 @Service
 @Transactional
-@Qualifier("UserDetailsService")
+@Qualifier("UserDetailsService") //explanation about annotation 35 4:00
 
 public class UserServiceImpl implements UserService, UserDetailsService {
 
@@ -99,7 +99,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setUserName(username);
         user.setEmail(email);
         user.setJoinDate(new Date());//setJoinDate -set time as current time this method being executed
-        user.setPassword(encodePassword(password));
+        user.setPassword(encodePassword(password)); //enable encoded for db testing purposes
+        //user.setPassword(password);
         user.setIsActive(true);
         user.setIsNotLocked(true);
         user.setRole(Role.ROLE_USER.name());
@@ -107,7 +108,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setProfileImageUrl(getTemporaryProfileImageUrl(username));
         userRepo.save(user);
         System.out.println("new user password: "+password);
-        emailService.sendNewPasswordEmail(firstName,password,email);
+        //emailService.sendNewPasswordEmail(firstName,password,email);
         return user;
     }
 
