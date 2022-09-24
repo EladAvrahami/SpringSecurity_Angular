@@ -11,10 +11,8 @@ import com.supportportal.service.EmailService;
 import com.supportportal.service.LoginAttemptService;
 import com.supportportal.service.UserService;
 //import org.slf4j.Logger;
-import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,16 +20,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;//spring
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.logging.Logger;
 
 import static com.supportportal.constant.UserImplConstant.DEFAULT_USER_IMAGE_PATH;
+import static com.supportportal.constant.UserImplConstant.NO_USER_FOUND_BY_EMAIL;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 //import static com.supportportal.enumeration.Role.*;
 
@@ -112,8 +111,92 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return user;
     }
 
+
+    @Override
+    public User addNewUser(String firstName, String lastName, String username, String email, String role, Boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, UserNameExistException, EmailExistsException {
+        validateNewUsernameAndEmail(EMPTY,username,email);
+        User user=new User();
+            String password=generatePassword();
+            user.setPassword(encodePassword(password));
+            user.setUserId(generateUserId());
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setJoinDate(new Date());
+            user.setUserName(username);
+            user.setEmail(email);
+            user.setIsActive(isActive);
+            user.setIsNotLocked(isNonLocked);
+            user.setRole(getRoleEnumName(role).name());
+            user.setAuthorities(getRoleEnumName(role).getAuthorities());
+            user.setProfileImageUrl(getTemporaryProfileImageUrl(username));
+            userRepo.save(user);
+            saveProfileImage(user,profileImage);
+            return user;
+    }
+
+
+
+    @Override
+    public User updateUser(String currentUsername, String newFirstName, String newLastName, String newUsername, String newEmail, String role, Boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, UserNameExistException, EmailExistsException {
+        User currentUser= validateNewUsernameAndEmail(currentUsername,newUsername,newEmail);
+        currentUser.setFirstName(newFirstName);
+        currentUser.setLastName(newLastName);
+        currentUser.setJoinDate(new Date());
+        currentUser.setUserName(newUsername);
+        currentUser.setEmail(newEmail);
+        currentUser.setIsActive(isActive);
+        currentUser.setIsNotLocked(isNonLocked);
+        currentUser.setRole(getRoleEnumName(role).name());
+        userRepo.save(currentUser);
+        saveProfileImage(currentUser,profileImage);
+        return currentUser;
+    }
+
+    @Override
+    public void deleteUser(long id) {
+        userRepo.deleteById(id);
+
+    }
+
+    /**
+     * TODO - ENABLE sendNewPasswordEmail after replace to outlook email
+     * @param email user email to send new pass
+     * @throws EmailExistsException
+     * @throws MessagingException
+     */
+    @Override
+    public void resetPassword(String email) throws EmailExistsException, MessagingException {
+        User user=userRepo.findUserByEmail(email);
+        if (user==null){
+            throw new EmailExistsException(NO_USER_FOUND_BY_EMAIL +email);
+        }
+        String password =generatePassword();
+        user.setPassword(encodePassword(password));
+        userRepo.save(user);
+        //send email with new pass to user
+        //emailService.sendNewPasswordEmail(user.getFirstName(),password,user.getEmail());
+        System.out.println(password);
+
+    }
+
+    @Override
+    public User updateProfileImage(String username, MultipartFile profileImage) throws UserNotFoundException, UserNameExistException, EmailExistsException {
+        User user =validateNewUsernameAndEmail(username,null,null);
+        saveProfileImage(user,profileImage);
+        return user;
+
+    }
+
+    private void saveProfileImage(User user, MultipartFile profileImage) {
+
+    }
+
+    private Role getRoleEnumName(String role) {
+
+    }
+
     private String getTemporaryProfileImageUrl(String username) {
-        return ServletUriComponentsBuilder.fromCurrentContextPath().path(DEFAULT_USER_IMAGE_PATH).toUriString(); //fromCurrentContextPath()-will give the prefix of address according to project location web
+        return ServletUriComponentsBuilder.fromCurrentContextPath().path(DEFAULT_USER_IMAGE_PATH + username).toUriString(); //fromCurrentContextPath()-will give the prefix of address according to project location web
     }
 
     private String encodePassword(String password) {
@@ -179,4 +262,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public User findUserByEmail(String email) {
         return userRepo.findUserByEmail(email);
     }
+
+
 }

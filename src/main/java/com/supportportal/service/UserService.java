@@ -15,11 +15,11 @@ public interface UserService {
     List<User>getUsers();
     User findUserByUsername(String username);
     User findUserByEmail(String email);
-    User addNewUser(String firstName, String lastName, String username, String email , String role, Boolean isNonLocked , boolean isActive, MultipartFile profileImage);
-    User updateUser(String currentUsername,String newFirstName, String newLastName, String newUsername, String newEmail , String role, Boolean isNonLocked , boolean isActive, MultipartFile profileImage);
+    User addNewUser(String firstName, String lastName, String username, String email , String role, Boolean isNonLocked , boolean isActive, MultipartFile profileImage) throws UserNotFoundException, UserNameExistException, EmailExistsException;
+    User updateUser(String currentUsername,String newFirstName, String newLastName, String newUsername, String newEmail , String role, Boolean isNonLocked , boolean isActive, MultipartFile profileImage) throws UserNotFoundException, UserNameExistException, EmailExistsException;
     void deleteUser(long id);
-    void resetPassword(String email);
-    void updateProfileImage(String username,MultipartFile profileImage);
+    void resetPassword(String email) throws EmailExistsException, MessagingException;
+    User updateProfileImage(String username, MultipartFile profileImage) throws UserNotFoundException, UserNameExistException, EmailExistsException;
 
 
 
