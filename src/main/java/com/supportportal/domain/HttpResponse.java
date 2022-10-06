@@ -23,6 +23,7 @@ public class HttpResponse {
     // Constructor never used. Can be (and should be) deleted
     public HttpResponse() {}
 
+    //use this con in the controller "response" method
     public HttpResponse(int httpStatusCode, HttpStatus httpStatus, String reason, String message) {
         this.timeStamp = new Date();
         this.httpStatusCode = httpStatusCode;

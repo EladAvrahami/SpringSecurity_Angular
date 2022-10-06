@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity //let spring security access
-@EnableGlobalMethodSecurity(prePostEnabled = true) //allow to have security in method level
+@EnableGlobalMethodSecurity(prePostEnabled = true) //allow to have security in method level (just as in the controller delete method @PreAuthorize annotation)
 class SecurityConfig extends WebSecurityConfigurerAdapter  {
     @Autowired
     private JwtAuthorizationFilter jwtAuthorizationFilter;
