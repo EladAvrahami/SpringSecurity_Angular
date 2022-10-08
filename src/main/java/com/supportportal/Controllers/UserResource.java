@@ -28,12 +28,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Locale;
 
 import static com.supportportal.constant.FileConstant.*;
 import static com.supportportal.constant.SecurityConstant.JWT_TOKEN_HEADER;
 import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
-import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 
 @RestController
 @RequestMapping(path = {"/","/user"})//to be more specific use path instead of value
@@ -67,8 +65,8 @@ public class UserResource extends ExceptionHandling {
   //if user has been locked go to DB and change filed "is_not_lock" value to 1 (before press apply remove the '1' and just write 1 in sql query)
     @PostMapping("/login")
     public ResponseEntity<User> login1(@RequestBody User user) {
-       authenticate(user.getUserName(),user.getPassword());
-       User loginUser =userService.findUserByUsername(user.getUserName());
+       authenticate(user.getUsername(),user.getPassword());
+       User loginUser =userService.findUserByUsername(user.getUsername());
        UserPrincipal userPrincipal =new UserPrincipal(loginUser);
         HttpHeaders jwtHeader= getJWTHeader(userPrincipal);
         return new ResponseEntity<>(loginUser,jwtHeader, HttpStatus.OK);
@@ -89,7 +87,7 @@ public class UserResource extends ExceptionHandling {
 
     @PostMapping("/register") //http://localhost:8081/user/register
     public ResponseEntity<User> register(@RequestBody User user) throws UserNotFoundException, UserNameExistException, EmailExistsException, MessagingException {
-        User newUser = userService.register(user.getFirstName(), user.getLastName(), user.getUserName(), user.getEmail());
+        User newUser = userService.register(user.getFirstName(), user.getLastName(), user.getUsername(), user.getEmail());
         return new ResponseEntity<>(newUser, HttpStatus.OK);
     }
 

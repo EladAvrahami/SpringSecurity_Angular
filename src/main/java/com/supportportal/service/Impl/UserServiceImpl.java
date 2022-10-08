@@ -31,7 +31,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import static com.supportportal.constant.FileConstant.*;
 import static com.supportportal.constant.FileConstant.JPG_EXTENSION;
@@ -62,7 +61,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user=userRepo.findUserByUserName(username);
+        User user=userRepo.findUserByUsername(username);
         if(user==null){
             //LOGGER.error("user not found by username"+username);
             throw new UsernameNotFoundException(username+"not found");
@@ -83,13 +82,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     private void validateLoginAttempt(User user) {
         if (user.isNotLocked()){
-          if (loginAttemptService.hasExceededMaxAttempts(user.getUserName())) {
+          if (loginAttemptService.hasExceededMaxAttempts(user.getUsername())) {
               user.setIsNotLocked(false);
           }else {
               user.setIsNotLocked(true);
           }
         }else {
-            loginAttemptService.evictUserFromLoginAttemptCache(user.getUserName());//remove user from cache
+            loginAttemptService.evictUserFromLoginAttemptCache(user.getUsername());//remove user from cache
         }
     }
 
@@ -102,7 +101,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         String password = generatePassword();
         user.setFirstName(firstName);
         user.setLastName(lastName);
-        user.setUserName(username);
+        user.setUsername(username);
         user.setEmail(email);
         user.setJoinDate(new Date());//setJoinDate -set time as current time this method being executed
         user.setPassword(encodePassword(password)); //enable encoded for db testing purposes
@@ -129,7 +128,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             user.setFirstName(firstName);
             user.setLastName(lastName);
             user.setJoinDate(new Date());
-            user.setUserName(username);
+            user.setUsername(username);
             user.setEmail(email);
             user.setIsActive(isActive);
             user.setIsNotLocked(isNonLocked);
@@ -149,7 +148,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         currentUser.setFirstName(newFirstName);
         currentUser.setLastName(newLastName);
         currentUser.setJoinDate(new Date());
-        currentUser.setUserName(newUsername);
+        currentUser.setUsername(newUsername);
         currentUser.setEmail(newEmail);
         currentUser.setIsActive(isActive);
         currentUser.setIsNotLocked(isNonLocked);
@@ -198,15 +197,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     //1:40-74
     private void saveProfileImage(User user, MultipartFile profileImage) throws IOException {
         if (profileImage!=null){
-            Path userFolder = Paths.get(USER_FOLDER +user.getUserName()).toAbsolutePath().normalize(); //user/home/supportportal/user/getUserName()
+            Path userFolder = Paths.get(USER_FOLDER +user.getUsername()).toAbsolutePath().normalize(); //user/home/supportportal/user/getUserName()
             if (!Files.exists(userFolder)){//if path dont exist crate it
                 Files.createDirectories(userFolder);
                 System.out.println(DIRECTORY_CREATED + userFolder);
             }
             //do duplicate delete to be sure !!
-            Files.deleteIfExists(Paths.get(userFolder+user.getUserName()+DOT + JPG_EXTENSION));
-            Files.copy(profileImage.getInputStream(),userFolder.resolve(user.getUserName()+DOT+JPG_EXTENSION), REPLACE_EXISTING);//REPLACE_EXISTING -COME from standard copy options it is replacing the existing pics(remove pic with username from folder)
-            user.setProfileImageUrl(setProfileImageUrl(user.getUserName()));
+            Files.deleteIfExists(Paths.get(userFolder+user.getUsername()+DOT + JPG_EXTENSION));
+            Files.copy(profileImage.getInputStream(),userFolder.resolve(user.getUsername()+DOT+JPG_EXTENSION), REPLACE_EXISTING);//REPLACE_EXISTING -COME from standard copy options it is replacing the existing pics(remove pic with username from folder)
+            user.setProfileImageUrl(setProfileImageUrl(user.getUsername()));
             userRepo.save(user);
             System.out.println(FILE_SAVED_IN_FILE_SYSTEM+ profileImage.getOriginalFilename());
         }
@@ -288,7 +287,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User findUserByUsername(String username) {
-        return userRepo.findUserByUserName(username);
+        return userRepo.findUserByUsername(username);
     }
 
     @Override
