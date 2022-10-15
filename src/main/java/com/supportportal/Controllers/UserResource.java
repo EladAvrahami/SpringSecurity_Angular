@@ -94,11 +94,11 @@ public class UserResource extends ExceptionHandling {
     @PostMapping("/add")
     private ResponseEntity<User>addNewUser(@RequestParam("firstName") String firstname,
                                            @RequestParam("lastName") String lastName,
-                                           @RequestParam("userName") String userName,
+                                           @RequestParam("username") String userName,
                                            @RequestParam("email") String email,
                                            @RequestParam("role") String role,
                                            @RequestParam("isActive") String isActive,
-                                           @RequestParam("isNonLocked") String isNonLocked,
+                                           @RequestParam("isNotLocked") String isNonLocked,
                                            @RequestParam(value = "profileImage", required = false)MultipartFile profileImage) throws UserNotFoundException, UserNameExistException, EmailExistsException, IOException {
         User newUser=userService.addNewUser(firstname,lastName,userName,email,role
         ,Boolean.parseBoolean(isNonLocked),Boolean.parseBoolean(isActive),profileImage);
